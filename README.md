@@ -1,4 +1,4 @@
-# Genaror-Brosur-Acara-Otomatis
+# Generator-Brosur-Acara-Otomatis
 # Brosur Acara (AI)
 
 **Aplikasi Generator Brosur Otomatis adalah sebuah alat berbasis web yang dirancang untuk memudahkan siapa saja membuat brosur acara yang terlihat profesional dengan cepat. Pengguna tidak memerlukan keahlian desain grafis; cukup dengan mengikuti alur panduan, mengisi detail acara, dan memilih dari template yang tersedia untuk menghasilkan brosur yang siap dibagikan.
