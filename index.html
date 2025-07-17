@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Brosur Otomatis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kDXDCe9WSwszG/lcQCaw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Montserrat:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Application Structure Plan: Alur wizard diubah menjadi 4 langkah: Landing -> Jenis Acara -> Detail Acara -> Konfirmasi -> Editor. Input gambar dipindahkan ke langkah Detail Acara untuk mengumpulkan semua data di awal. -->
+    <!-- Visualization & Content Choices: Template 'Corporate Blue' diganti dengan 'Profesional Rapi' yang memiliki tata letak header-content-footer untuk struktur yang lebih baik. Semua template disesuaikan (padding, ukuran font responsif, word-break) untuk memastikan keterbacaan dan mencegah layout rusak. Fungsi untuk link Google Drive diperkuat untuk menangani berbagai format URL dan memberikan instruksi yang lebih jelas kepada pengguna. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. AI features removed. -->
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-lora { font-family: 'Lora', serif; }
+        .step { display: none; }
+        .step.active { display: block; }
+        #brochure-preview-wrapper {
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 210 / 297; /* A4 Aspect Ratio */
+            margin: auto;
+        }
+        #brochure-preview {
+            width: 100%;
+            height: 100%;
+            transform-origin: top center;
+        }
+        .template-card.selected {
+            box-shadow: 0 0 0 3px #F97316;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- STEP 1: LANDING PAGE -->
+        <section id="step-landing" class="step active text-center py-16">
+            <h1 class="text-4xl md:text-6xl font-bold text-orange-600 mb-4">Buat Brosur Profesional dengan Mudah</h1>
+            <p class="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto mb-8">Tidak perlu skill desain. Cukup isi data acara, pilih template, dan brosur keren siap dibagikan.</p>
+            <button onclick="nextStep('step-event-type')" class="bg-orange-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-700 transition-transform transform hover:scale-105">Mulai Buat Brosur</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-xl mb-2">🚀 Cepat & Mudah</h3>
+                    <p class="text-stone-600">Isi formulir dalam beberapa menit dan lihat hasilnya.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-xl mb-2">🎨 Template Profesional</h3>
+                    <p class="text-stone-600">Didesain oleh ahli untuk berbagai jenis acara.</p>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-xl mb-2">✏️ Kustomisasi Penuh</h3>
+                    <p class="text-stone-600">Ganti warna, gambar, dan font sesuka hati.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-xl mb-2">✅ Siap Sebar</h3>
+                    <p class="text-stone-600">Unduh dalam format PDF atau PNG berkualitas tinggi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: EVENT TYPE -->
+        <section id="step-event-type" class="step">
+            <h2 class="text-3xl font-bold text-center mb-2">Langkah 1 dari 4</h2>
+            <p class="text-xl text-center text-stone-600 mb-8">Pilih jenis acaramu</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <button onclick="selectEventType('Seminar', 'step-details')" class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-all text-center">
+                    <span class="text-6xl mb-4 block">🎤</span>
+                    <span class="text-2xl font-bold">Seminar & Webinar</span>
+                </button>
+                <button onclick="selectEventType('Konser', 'step-details')" class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-all text-center">
+                    <span class="text-6xl mb-4 block">🎸</span>
+                    <span class="text-2xl font-bold">Konser & Pertunjukan</span>
+                </button>
+                <button onclick="selectEventType('Lomba', 'step-details')" class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-all text-center">
+                    <span class="text-6xl mb-4 block">🏆</span>
+                    <span class="text-2xl font-bold">Lomba & Kompetisi</span>
+                </button>
+                <button onclick="selectEventType('Workshop', 'step-details')" class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-all text-center">
+                    <span class="text-6xl mb-4 block">🛠️</span>
+                    <span class="text-2xl font-bold">Workshop & Pelatihan</span>
+                </button>
+            </div>
+        </section>
+        
+        <!-- STEP 3: DETAILS FORM -->
+        <section id="step-details" class="step">
+            <h2 class="text-3xl font-bold text-center mb-2">Langkah 2 dari 4</h2>
+            <p class="text-xl text-center text-stone-600 mb-8">Isi detail acaramu</p>
+            <div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <form id="details-form" onsubmit="event.preventDefault(); nextStep('step-confirmation');">
+                    <div class="mb-4">
+                        <label for="judul" class="block text-stone-700 font-bold mb-2">Judul Acara</label>
+                        <input type="text" id="judul" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Seminar Nasional Digital Marketing 2025" required>
+                    </div>
+                     <div class="mb-4">
+                        <label for="deskripsi" class="block text-stone-700 font-bold mb-2">Deskripsi Singkat</label>
+                        <textarea id="deskripsi" rows="3" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Jelaskan secara singkat tentang acaramu..." required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="pembicara" class="block text-stone-700 font-bold mb-2">Pembicara / Bintang Tamu</label>
+                        <input type="text" id="pembicara" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Budi Setiawan, S.E., M.M." required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="tanggal" class="block text-stone-700 font-bold mb-2">Tanggal</label>
+                            <input type="date" id="tanggal" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                        </div>
+                        <div>
+                            <label for="waktu" class="block text-stone-700 font-bold mb-2">Waktu</label>
+                            <input type="time" id="waktu" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="lokasi" class="block text-stone-700 font-bold mb-2">Lokasi Acara</label>
+                        <input type="text" id="lokasi" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Gedung Serbaguna, Universitas Terbuka" required>
+                    </div>
+                     <div class="mb-4">
+                        <label for="narahubung" class="block text-stone-700 font-bold mb-2">Narahubung (Contact Person)</label>
+                        <input type="text" id="narahubung" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: 0812-3456-7890 (Andi)" required>
+                    </div>
+                     <div class="mb-4">
+                        <label for="pendaftaran" class="block text-stone-700 font-bold mb-2">Link Pendaftaran (Opsional)</label>
+                        <input type="text" id="pendaftaran" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: bit.ly/DaftarSeminarDigital">
+                    </div>
+                    <div class="mb-6">
+                        <label for="image-url" class="block text-stone-700 font-bold mb-2">Link Gambar Latar (Opsional)</label>
+                        <p class="text-sm text-stone-500 mb-2">Tempel link gambar dari Google Drive. Pastikan akses file diatur ke <strong class="text-orange-600">'Siapa saja yang memiliki link'</strong>.</p>
+                        <input type="text" id="image-url" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Tempel link gambar di sini">
+                    </div>
+                    <button type="submit" class="w-full bg-orange-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-700 transition-colors">Lanjut ke Konfirmasi</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 3.5: CONFIRMATION -->
+        <section id="step-confirmation" class="step">
+            <h2 class="text-3xl font-bold text-center mb-2">Langkah 3 dari 4</h2>
+            <p class="text-xl text-center text-stone-600 mb-8">Konfirmasi Detail Acara</p>
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <div id="confirmation-data" class="space-y-4 text-lg break-words">
+                    <!-- Confirmation data will be injected here -->
+                </div>
+                <div class="flex gap-4 mt-8">
+                    <button onclick="showStep('step-details')" class="w-full bg-stone-200 text-stone-800 font-bold py-3 px-6 rounded-lg hover:bg-stone-300 transition-colors">Ubah Kembali</button>
+                    <button onclick="nextStep('step-editor')" class="w-full bg-orange-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-700 transition-colors">Benar, Lanjut Desain</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 4: EDITOR -->
+        <section id="step-editor" class="step">
+            <h2 class="text-3xl font-bold text-center mb-2">Langkah 4 dari 4</h2>
+            <p class="text-xl text-center text-stone-600 mb-8">Kreasikan brosurmu!</p>
+            
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- CONTROLS -->
+                <div class="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-lg">
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-3 border-b pb-2">1. Pilih Template</h3>
+                        <div id="template-options" class="grid grid-cols-2 gap-4">
+                            <!-- Templates will be injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-3 border-b pb-2">2. Sesuaikan Warna</h3>
+                        <div id="color-palettes" class="flex flex-wrap gap-4">
+                             <!-- Palettes will be injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-3 border-b pb-2">3. Pilih Font</h3>
+                        <select id="font-select" onchange="updatePreview()" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="font-poppins">Poppins</option>
+                            <option value="font-montserrat">Montserrat</option>
+                            <option value="font-lora">Lora</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-lg mb-3 border-b pb-2">4. Unduh Hasil</h3>
+                        <div id="download-buttons" class="flex flex-col sm:flex-row gap-4">
+                           <button onclick="downloadBrochure('png')" class="flex-1 bg-orange-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors">Unduh PNG</button>
+                           <button onclick="downloadBrochure('pdf')" class="flex-1 bg-stone-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-stone-800 transition-colors">Unduh PDF</button>
+                        </div>
+                         <div id="loading" class="text-center mt-4 hidden">
+                            <p class="text-orange-600">Mempersiapkan file...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREVIEW -->
+                <div class="w-full lg:w-2/3">
+                    <div id="brochure-preview-wrapper" class="bg-white shadow-xl">
+                        <div id="brochure-preview" class="overflow-hidden">
+                           <!-- Brochure content will be injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        let currentStep = 'step-landing';
+        const eventData = {};
+
+        const templates = {
+            'modern-minimalist': {
+                name: 'Modern Minimalist',
+                html: (data, colors, font) => `
+                    <div class="w-full h-full relative flex flex-col p-8 md:p-10 text-left ${font} overflow-hidden bg-cover bg-center" style="background-color: ${colors.bg}; background-image: url('${data.bgImageDataURL || ''}');">
+                        ${data.bgImageDataURL ? '<div class="absolute inset-0 bg-black opacity-40 z-0"></div>' : ''}
+                        <div class="relative z-10 w-full h-full flex flex-col" style="color: ${data.bgImageDataURL ? 'white' : colors.text}; text-shadow: ${data.bgImageDataURL ? '1px 1px 3px rgba(0,0,0,0.5)' : 'none'};">
+                            <div class="w-24 h-1.5 mb-6" style="background-color: ${colors.accent};"></div>
+                            <h1 class="text-3xl md:text-4xl font-bold uppercase break-words" style="line-height: 1.2;">${data.judul || 'Judul Acara Anda'}</h1>
+                            <p class="mt-4 text-lg md:text-xl break-words">${data.jenisAcara || 'Jenis Acara'}</p>
+                            <p class="mt-4 text-base md:text-lg italic break-words">${data.deskripsi || ''}</p>
+                            <div class="mt-auto pt-6">
+                                <p class="text-lg md:text-xl">Pembicara:</p>
+                                <p class="text-xl md:text-2xl font-bold mb-4 break-words">${data.pembicara || 'Nama Pembicara'}</p>
+                                <div class="text-base md:text-lg space-y-1">
+                                    <p class="break-words">🗓️ ${data.tanggalFmt || 'Tanggal'} | ⏰ ${data.waktu || 'Waktu'}</p>
+                                    <p class="break-words">📍 ${data.lokasi || 'Lokasi Acara'}</p>
+                                    <p class="mt-2 break-words">📞 ${data.narahubung || 'Narahubung'}</p>
+                                    ${data.pendaftaran ? `<p class="mt-2 font-bold break-words" style="color: ${data.bgImageDataURL ? '#FFFFFF' : colors.accent};">Daftar: ${data.pendaftaran}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'energetic-vibe': {
+                name: 'Energetic Vibe',
+                html: (data, colors, font) => `
+                    <div class="w-full h-full relative overflow-hidden p-8 md:p-10 text-white ${font} bg-cover bg-center" style="background-color: ${colors.bg}; background-image: url('${data.bgImageDataURL || ''}');">
+                        ${!data.bgImageDataURL ? `<div class="absolute -top-1/4 -right-1/4 w-2/3 h-2/3 rounded-full" style="background-color: ${colors.accent}; opacity: 0.7;"></div><div class="absolute -bottom-1/4 -left-1/4 w-1/2 h-1/2 rounded-full" style="background-color: ${colors.accent}; opacity: 0.7;"></div>` : '<div class="absolute inset-0 bg-black opacity-30 z-0"></div>'}
+                        <div class="relative z-10 flex flex-col h-full" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                            <h1 class="text-4xl md:text-5xl font-bold uppercase break-words">${data.judul || 'Judul Acara Anda'}</h1>
+                            <p class="mt-2 text-base md:text-lg italic max-w-full break-words">${data.deskripsi || ''}</p>
+                            <p class="mt-8 text-xl md:text-2xl">Pembicara:</p>
+                            <p class="text-2xl md:text-3xl font-bold break-words">${data.pembicara || 'Bintang Tamu Utama'}</p>
+                            <div class="mt-auto text-right">
+                                <p class="text-lg md:text-xl font-bold break-words">${data.tanggalFmt || 'Tanggal Acara'}</p>
+                                <p class="text-lg md:text-xl font-bold break-words">${data.waktu || 'Waktu Mulai'}</p>
+                                <p class="text-base md:text-lg break-words">${data.lokasi || 'Lokasi Acara'}</p>
+                                ${data.pendaftaran ? `<p class="mt-2 text-lg font-bold break-words">TIKET: ${data.pendaftaran}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+             'professional-clean': {
+                name: 'Profesional Rapi',
+                html: (data, colors, font) => `
+                    <div class="w-full h-full flex flex-col ${font} overflow-hidden relative bg-cover bg-center" style="background-color: ${colors.bg}; color: ${colors.text}; background-image: url('${data.bgImageDataURL || ''}');">
+                        ${data.bgImageDataURL ? '<div class="absolute inset-0 bg-white opacity-80 z-0"></div>' : ''}
+                        <div class="relative z-10 w-full h-full flex flex-col">
+                            <div class="p-8 md:p-10" style="background-color: ${colors.accent}; color: ${colors.textOnAccent};">
+                                 <h1 class="text-3xl md:text-4xl font-bold uppercase break-words" style="line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${data.judul || 'Judul Acara Anda'}</h1>
+                                 <p class="mt-2 text-lg md:text-xl break-words" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${data.jenisAcara || 'Jenis Acara'}</p>
+                                 <p class="mt-4 text-base md:text-lg italic break-words" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${data.deskripsi || 'Deskripsi singkat acara.'}</p>
+                            </div>
+                            <div class="p-8 md:p-10 flex-grow">
+                                <p class="text-2xl font-bold">Pembicara Utama:</p>
+                                <p class="text-3xl mb-6 break-words" style="color: ${colors.accent};">${data.pembicara || 'Nama Pembicara Ahli'}</p>
+                            </div>
+                            <div class="p-8 md:p-10 mt-auto" style="background-color: rgba(243, 244, 246, 0.85); color: #1f2937;">
+                                <div class="grid grid-cols-2 gap-4 text-base md:text-lg">
+                                    <p class="break-words"><strong>🗓️ Tanggal:</strong><br>${data.tanggalFmt || 'DD/MM/YYYY'}</p>
+                                    <p class="break-words"><strong>⏰ Waktu:</strong><br>${data.waktu || 'HH:MM'} WIB</p>
+                                    <p class="col-span-2 break-words"><strong>📍 Lokasi:</strong><br>${data.lokasi || 'Lokasi Acara'}</p>
+                                    <p class="col-span-2 break-words"><strong>📞 Kontak:</strong> ${data.narahubung || 'Narahubung'}</p>
+                                </div>
+                                ${data.pendaftaran ? `<p class="mt-4 font-bold text-lg md:text-xl text-center p-3 rounded-lg break-words" style="background-color: ${colors.accent}; color: ${colors.textOnAccent}; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Daftar di: ${data.pendaftaran}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'creative-splash': {
+                name: 'Creative Splash',
+                html: (data, colors, font) => `
+                    <div class="w-full h-full relative p-8 flex flex-col justify-center items-center text-center ${font} overflow-hidden bg-cover bg-center" style="background-color: ${colors.bg}; color: ${colors.text}; background-image: url('${data.bgImageDataURL || ''}');">
+                         ${data.bgImageDataURL ? '<div class="absolute inset-0 bg-black opacity-40 z-0"></div>' : `<div class="absolute top-0 left-0 w-full h-full bg-no-repeat bg-center bg-cover" style="background-image: url('https://www.transparenttextures.com/patterns/splatter.png'); opacity: 0.1;"></div>`}
+                         <div class="relative z-10" style="color: ${data.bgImageDataURL ? 'white' : colors.text}; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+                            <p class="text-lg md:text-xl mb-2" style="color: ${colors.accent};">Anda Diundang!</p>
+                            <h1 class="text-4xl md:text-5xl font-bold break-words" style="line-height: 1.1;">${data.judul || 'Judul Workshop Kreatif'}</h1>
+                            <p class="text-lg md:text-xl mt-4 italic max-w-full break-words">${data.deskripsi || ''}</p>
+                            <p class="text-xl md:text-2xl mt-6">Pembicara:</p>
+                            <p class="text-2xl md:text-3xl font-bold mt-2 break-words" style="color: ${colors.accent};">${data.pembicara || 'Nama Seniman'}</p>
+                            <div class="mt-8 border-t-2 pt-6 w-full max-w-sm" style="border-color: ${colors.accent};">
+                                <p class="text-base md:text-lg break-words">${data.tanggalFmt || 'Tanggal'}, ${data.waktu || 'Waktu'}</p>
+                                <p class="text-base md:text-lg break-words">${data.lokasi || 'Lokasi'}</p>
+                                <p class="text-base md:text-lg mt-2 break-words">Info: ${data.narahubung || 'Narahubung'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+        
+        const palettes = {
+            'dark-orange': { name: 'Dark Orange', bg: '#44403c', text: '#f5f5f4', accent: '#fb923c', textOnAccent: '#1c1917'},
+            'deep-blue': { name: 'Deep Blue', bg: '#1e3a8a', text: '#dbeafe', accent: '#facc15', textOnAccent: '#1e3a8a'},
+            'crimson-night': { name: 'Crimson Night', bg: '#262626', text: '#fee2e2', accent: '#ef4444', textOnAccent: '#ffffff'},
+            'emerald-forest': { name: 'Emerald Forest', bg: '#064e3b', text: '#d1fae5', accent: '#34d399', textOnAccent: '#064e3b'},
+        };
+
+        let designOptions = {
+            template: 'modern-minimalist',
+            palette: 'dark-orange',
+            font: 'font-poppins'
+        };
+
+        function showStep(stepId) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+            currentStep = stepId;
+            window.scrollTo(0, 0);
+        }
+        
+        function nextStep(stepId) {
+             if (currentStep === 'step-details') {
+                const form = document.getElementById('details-form');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                populateConfirmation();
+            } else if (currentStep === 'step-confirmation') {
+                 initializeEditor();
+            }
+            showStep(stepId);
+        }
+
+        function selectEventType(type, nextStepId) {
+            eventData.jenisAcara = type;
+            nextStep(nextStepId);
+        }
+
+        function populateConfirmation() {
+            const form = document.getElementById('details-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            eventData.judul = document.getElementById('judul').value;
+            eventData.deskripsi = document.getElementById('deskripsi').value;
+            eventData.pembicara = document.getElementById('pembicara').value;
+            const date = new Date(document.getElementById('tanggal').value);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            eventData.tanggal = document.getElementById('tanggal').value;
+            eventData.tanggalFmt = date.toLocaleDateString('id-ID', options);
+            eventData.waktu = document.getElementById('waktu').value;
+            eventData.lokasi = document.getElementById('lokasi').value;
+            eventData.narahubung = document.getElementById('narahubung').value;
+            eventData.pendaftaran = document.getElementById('pendaftaran').value;
+            eventData.imageUrl = document.getElementById('image-url').value;
+
+            const container = document.getElementById('confirmation-data');
+            container.innerHTML = `
+                <p><strong>Judul:</strong><br>${eventData.judul}</p>
+                <p><strong>Deskripsi:</strong><br>${eventData.deskripsi}</p>
+                <p><strong>Pembicara:</strong><br>${eventData.pembicara}</p>
+                <p><strong>Jadwal:</strong><br>${eventData.tanggalFmt}, Pukul ${eventData.waktu}</p>
+                <p><strong>Lokasi:</strong><br>${eventData.lokasi}</p>
+                <p><strong>Narahubung:</strong><br>${eventData.narahubung}</p>
+                ${eventData.pendaftaran ? `<p><strong>Link Daftar:</strong><br>${eventData.pendaftaran}</p>` : ''}
+                ${eventData.imageUrl ? `<p><strong>Link Gambar:</strong><br>${eventData.imageUrl}</p>` : ''}
+            `;
+            showStep('step-confirmation');
+        }
+        
+        function initializeEditor() {
+            const templateContainer = document.getElementById('template-options');
+            templateContainer.innerHTML = Object.keys(templates).map(key => `
+                <div class="template-card cursor-pointer border-2 border-transparent rounded-lg overflow-hidden" onclick="selectTemplate('${key}')" data-template-key="${key}">
+                    <div class="bg-stone-200 h-24 flex items-center justify-center text-center p-2 text-sm text-stone-600">${templates[key].name}</div>
+                </div>
+            `).join('');
+            
+            const paletteContainer = document.getElementById('color-palettes');
+            paletteContainer.innerHTML = Object.keys(palettes).map(key => `
+                 <div class="cursor-pointer rounded-full p-1 border-2 border-transparent" onclick="selectPalette('${key}')" data-palette-key="${key}">
+                    <div class="w-10 h-10 rounded-full flex overflow-hidden shadow-inner">
+                        <div class="w-1/2 h-full" style="background-color:${palettes[key].bg};"></div>
+                        <div class="w-1/2 h-full" style="background-color:${palettes[key].accent};"></div>
+                    </div>
+                 </div>
+            `).join('');
+            
+            selectTemplate(designOptions.template);
+            selectPalette(designOptions.palette);
+            updatePreview();
+        }
+
+        function selectTemplate(key) {
+            designOptions.template = key;
+            document.querySelectorAll('.template-card').forEach(card => {
+                 card.classList.toggle('selected', card.dataset.templateKey === key);
+            });
+            updatePreview();
+        }
+        
+        function selectPalette(key) {
+            designOptions.palette = key;
+            document.querySelectorAll('[data-palette-key]').forEach(div => {
+                div.classList.toggle('border-orange-500', div.dataset.paletteKey === key);
+            });
+            updatePreview();
+        }
+
+        function convertGoogleDriveLink(url) {
+            if (!url || !url.includes('drive.google.com')) return url;
+            const regex = /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
+            const match = url.match(regex);
+            if (match && match[1]) {
+                return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            }
+            return url; // Return original if format is not recognized
+        }
+
+        async function fetchImageAsDataURL(url) {
+            if (!url) return null;
+            // Use a CORS proxy to prevent tainted canvas errors
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const directUrl = convertGoogleDriveLink(url);
+            
+            try {
+                // We now always use the proxy for simplicity and reliability
+                const response = await fetch(proxyUrl + directUrl);
+                if (!response.ok) {
+                   throw new Error(`Gagal fetch gambar via proxy: ${response.statusText}`);
+                }
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.error(`Gagal memuat gambar dari ${url}:`, error);
+                alert(`Gagal memuat gambar dari link yang diberikan. Pastikan link benar dan dapat diakses publik (setting 'Siapa saja yang memiliki link'). Error: ${error.message}`);
+                return null;
+            }
+        }
+        
+        async function updatePreview() {
+            if (currentStep !== 'step-editor') return;
+            
+            const preview = document.getElementById('brochure-preview');
+            preview.innerHTML = `<div class="w-full h-full flex items-center justify-center text-stone-500"><p>Memuat Pratinjau...</p></div>`;
+
+            const bgImageDataURL = await fetchImageAsDataURL(eventData.imageUrl);
+            const fullEventData = { ...eventData, bgImageDataURL };
+            
+            const selectedTemplate = templates[designOptions.template];
+            const selectedPalette = palettes[designOptions.palette];
+            designOptions.font = document.getElementById('font-select').value;
+            
+            preview.innerHTML = selectedTemplate.html(fullEventData, selectedPalette, designOptions.font);
+        }
+        
+        function downloadBrochure(format) {
+            const brochureElement = document.getElementById('brochure-preview');
+            const loadingIndicator = document.getElementById('loading');
+            loadingIndicator.classList.remove('hidden');
+
+            html2canvas(brochureElement, {
+                scale: 3, // Higher scale for better quality
+                useCORS: true, 
+                allowTaint: true // Set to true when using a CORS proxy
+            }).then(canvas => {
+                const fileName = `brosur-${eventData.judul.replace(/\s+/g, '-').toLowerCase()}`;
+                if (format === 'png') {
+                    const image = canvas.toDataURL('image/png', 1.0);
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = `${fileName}.png`;
+                    link.click();
+                } else if (format === 'pdf') {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'px',
+                        format: [canvas.width, canvas.height]
+                    });
+                    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+                    pdf.save(`${fileName}.pdf`);
+                }
+            }).catch(err => {
+                console.error("Oops, something went wrong!", err);
+                alert("Gagal mengunduh brosur. Pastikan link gambar (jika ada) dapat diakses secara publik dan coba lagi.");
+            }).finally(() => {
+                loadingIndicator.classList.add('hidden');
+            });
+        }
+
+    </script>
+</body>
+</html>
